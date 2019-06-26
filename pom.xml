@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.coupa.cloud.operations.ce</groupId>
+    <artifactId>kafka-oauth</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka -->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_2.12</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+        <dependency>
+		    <groupId>com.github.coupa</groupId>
+		    <artifactId>sand-java</artifactId>
+		    <version>1.1.0</version>
+		</dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <artifactSet>
+                      <excludes>
+                          <exclude>org.apache.*:*:*</exclude>
+                          <exclude>org.slf4j:*:*</exclude>
+                          <exclude>com.fasterxml.*:*:*</exclude>
+                          <exclude>org.lz4:lz4-java:*</exclude>
+                          <exclude>org.xerial.snappy:snappy-java:*</exclude>
+                          <exclude>net.sf.jopt-simple:jopt-simple:*</exclude>
+                          <exclude>com.yammer.metrics:metrics-core:*</exclude>
+                          <exclude>org.scala-lang:*:*</exclude>
+                          <exclude>com.typesafe.scala-logging:*</exclude>
+                          <exclude>com.101tec:zkclient:*</exclude>
+                      </excludes>
+                    </artifactSet>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
