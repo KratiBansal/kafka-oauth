@@ -14,6 +14,7 @@ import org.apache.http.auth.AuthenticationException;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.security.auth.AuthenticateCallbackHandler;
 import org.apache.kafka.common.security.oauthbearer.OAuthBearerValidatorCallback;
+import org.apache.kafka.common.security.oauthbearer.internals.unsecured.OAuthBearerValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +30,11 @@ import java.util.Properties;
 public class KafkaTokenValidator implements AuthenticateCallbackHandler {
 
   private static final Logger LOGGER =
-    LoggerFactory.getLogger(KafkaTokenValidator.class);
+      LoggerFactory.getLogger(KafkaTokenValidator.class);
 
   @Override
   public void configure(Map<String, ?> configs, String saslMechanism,
-                        List<AppConfigurationEntry> jaasConfigEntries) {
+      List<AppConfigurationEntry> jaasConfigEntries) {
 
     SandConfig.configure(saslMechanism, jaasConfigEntries);
     LOGGER.info("Configured Kafka token validator successfully");
@@ -66,9 +67,9 @@ public class KafkaTokenValidator implements AuthenticateCallbackHandler {
     Properties sandConfig = sand.getConfigs();
 
     VerificationOptions options = new VerificationOptions(
-      sand.getArray(SandConfig.SAND_SERVICE_TARGET_SCOPES),
-      sandConfig.getProperty(SandConfig.SAND_SERVICE_ACTION),
-      sandConfig.getProperty(SandConfig.SAND_SERVICE_RESOURCE));
+        sand.getArray(SandConfig.SAND_SERVICE_TARGET_SCOPES),
+        sandConfig.getProperty(SandConfig.SAND_SERVICE_ACTION),
+        sandConfig.getProperty(SandConfig.SAND_SERVICE_RESOURCE));
 
     AllowedResponse resp;
     try {
@@ -76,10 +77,12 @@ public class KafkaTokenValidator implements AuthenticateCallbackHandler {
     } catch (AuthenticationException e) {
       throw new IOException(e.getMessage(), e);
     }
-    if (resp.isAllowed()) {
-      callback.token(new SandOAuthToken(token, resp));
-    } else {
-      callback.error("access_denied", null, null);
+    SandOAuthToken tk = new SandOAuthToken(token, resp);
+    LOGGER.debug("SandOAuthToken: " + tk);
+    if (!resp.isAllowed()) {
+      OAuthBearerValidationResult.newFailure("Token access denied");
+      LOGGER.debug("Access denied to token: " + token);
     }
+    callback.token(tk);
   }
 }

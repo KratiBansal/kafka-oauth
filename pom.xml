@@ -29,10 +29,10 @@
             <version>4.5.8</version>
         </dependency>
         <dependency>
-		    <groupId>com.github.coupa</groupId>
-		    <artifactId>sand-java</artifactId>
-		    <version>1.1.0</version>
-		</dependency>
+            <groupId>com.github.coupa</groupId>
+            <artifactId>sand-java</artifactId>
+            <version>1.1.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -54,7 +54,6 @@
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <artifactSet>
                       <excludes>
-                          <exclude>org.apache.*:*:*</exclude>
                           <exclude>org.slf4j:*:*</exclude>
                           <exclude>com.fasterxml.*:*:*</exclude>
                           <exclude>org.lz4:lz4-java:*</exclude>
