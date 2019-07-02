@@ -29,7 +29,7 @@ public class KafkaBrokerTokenCreator implements AuthenticateCallbackHandler {
 
   @Override
   public void configure(Map<String, ?> configs, String saslMechanism,
-                        List<AppConfigurationEntry> jaasConfigEntries)  {
+      List<AppConfigurationEntry> jaasConfigEntries)  {
 
     SandConfig.configure(saslMechanism, jaasConfigEntries);
     LOGGER.info("Configured Kafka broker oauth token creator successfully");
@@ -42,7 +42,6 @@ public class KafkaBrokerTokenCreator implements AuthenticateCallbackHandler {
   @Override
   public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
     for (Callback callback : callbacks) {
-
       if (callback instanceof OAuthBearerTokenCallback) {
         makeToken((OAuthBearerTokenCallback) callback);
       } else {
@@ -60,16 +59,18 @@ public class KafkaBrokerTokenCreator implements AuthenticateCallbackHandler {
 
     LOGGER.info("Getting token from SAND");
     TokenResponse tokenResponse = sand.getService().getOAuthToken(
-            SandConfig.SAND_CLIENT_CACHE_KEY,
-            sand.getArray(SandConfig.SAND_CLIENT_SCOPES),
-            SandConfig.SAND_RETRY_COUNT);
+        SandConfig.SAND_CLIENT_CACHE_KEY,
+        sand.getArray(SandConfig.SAND_CLIENT_SCOPES),
+        SandConfig.SAND_RETRY_COUNT);
 
     if (tokenResponse == null) {
       throw new IllegalArgumentException("Failed to get token from SAND");
     }
     LOGGER.debug("Token received: {}", tokenResponse.getToken());
 
-    callback.token(new SandOAuthToken(sand.getService().getClientId().toString(), tokenResponse));
+    SandOAuthToken tk = new SandOAuthToken(sand.getService().getClientId().toString(), tokenResponse);
+    LOGGER.debug(tk.toString());
+    callback.token(tk);
   }
 
 }

@@ -1,12 +1,12 @@
-# Coupa Kafka OAuth2 Library
+# Kafka OAuth2 Library
 
-### Container Environments
-For client broker authentication, configure this environment variable:
+### Sand Config File
+Configure this environment variable to a path of file containing SAND configs.
 
-- KAFKA_SAND_CONFIG_PATH: path to properties file which holds config for sand server.
+- KAFKA_SAND_CONFIG_PATH: path to properties file which holds config for sand server. Defaults: /etc/kafka/sand.properties
 
-### Kafka Sand Client Configuration (Producer/Consumer)
-Add this properties in your kafka configuration
+### Kafka-Sand Configuration
+Add the below properties in your SAND configs file(KAFKA_SAND_CONFIG_PATH)
 
 ```
 sand.server.url=FIXME
@@ -24,18 +24,24 @@ sand.service.action=any
 ### Example (Producer)
 
 ```bash
-export KAFKA_SAND_CONFIG_PATH=/home/deploy/sand.properties
-KAFKA_OPTS="-Dlog4j.configuration=file:/srv/kafka/2.12-2.0.0/kafka_2.12-2.0.0/config/log4j.properties  -Djava.security.properties=/etc/kafka/bcfips.java.security -Djavax.net.ssl.trustStore=/var/private/ssl/kafka.truststore.bcfks -Djavax.net.ssl.trustStorePassword=some_password" /srv/kafka/current/kafka_2.12-2.0.0/bin/kafka-console-producer.sh --broker-list 10.1.11.43:9092 --producer.config client.properties --topic test-topic1
+export KAFKA_SAND_CONFIG_PATH=/etc/kafka/sand.properties
+sudo KAFKA_OPTS="-Dlog4j.configuration=file:/srv/kafka/2.12-2.0.0/kafka_2.12-2.0.0/config/log4j.properties -Djava.security.properties=/etc/kafka/bcfips.java.security -Djavax.net.ssl.trustStore=/var/private/ssl/kafka.truststore.bcfks -Djavax.net.ssl.trustStorePassword=<trustStorePasswordHere>" /srv/kafka/current/kafka_2.12-2.0.0/bin/kafka-console-producer.sh --broker-list <broker_ip>:9092 --producer.config client.properties --topic test-topic1
 ```
 
-## Broker X Broker Authentication
-```java
-class com.coupa.kafka.security.sasl.oauth.KafkaBrokerTokenCreator
-```
-### How to build/package the library.
 
-```bash
-mvn3/maven/mvn package
+# Client Properties
+client.properties should contains content like below:
+```
+security.protocol=SASL_SSL
+ssl.truststore.location=<path_to_truststore>
+ssl.truststore.password=<truststore_password>
+ssl.endpoint.identification.algorithm=
+sasl.mechanism=OAUTHBEARER
+ssl.truststore.type = BCFKS/JKS
+ssl.keystore.type = BCFKS/JKS
+ssl.secure.random.implementation=DEFAULT
+sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required;
+sasl.login.callback.handler.class=com.coupa.kafka.security.sasl.oauth.KafkaBrokerTokenCreator
 ```
 
 ### Kafka Server Configuration
@@ -58,6 +64,11 @@ Add this properties in server.properties
         org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required ;
     };
     ```
-2. Add this file to config path of kafka.
+2. Add this file to config path of kafka. Add `-Djava.security.auth.login.config=<path_to_kafka_server_jaas.conf>` at java args to load the configuration file.
 
-3. Add `-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf` at java args to load the configuration file.
+
+### How to build/package the library.
+
+```bash
+mvn3/maven/mvn package
+```

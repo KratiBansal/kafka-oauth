@@ -59,7 +59,7 @@ public class SandConfig {
       return theInstance;
   }
 
-  public static boolean configure(String saslMechanism,
+  public static void configure(String saslMechanism,
                                   List<AppConfigurationEntry> jaasConfigEntries) {
 
     if (!OAUTHBEARER_MECHANISM.equals(saslMechanism)) {
@@ -79,8 +79,6 @@ public class SandConfig {
           String.format("Must supply exactly 1 non-null JAAS mechanism configuration (size was %d)",
               jaasConfigEntries.size()));
     }
-
-    return true;
   }
 
   public Service getService() {
