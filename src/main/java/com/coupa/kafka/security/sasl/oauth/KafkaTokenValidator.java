@@ -73,15 +73,18 @@ public class KafkaTokenValidator implements AuthenticateCallbackHandler {
 
     AllowedResponse resp;
     try {
+      LOGGER.info("Verifying token: " + token.substring(0, 4));
       resp = sand.getService().checkToken(token, options);
-    } catch (AuthenticationException e) {
+    } catch (Exception e) {
+      LOGGER.error("Error verifying Sand token: " + e.getMessage());
       throw new IOException(e.getMessage(), e);
     }
     SandOAuthToken tk = new SandOAuthToken(token, resp);
-    LOGGER.debug("SandOAuthToken: " + tk);
     if (!resp.isAllowed()) {
-      OAuthBearerValidationResult.newFailure("Token access denied");
-      LOGGER.debug("Access denied to token: " + token);
+      LOGGER.info("Sand token access denied");
+      OAuthBearerValidationResult.newFailure("Sand token access denied");
+    } else {
+      LOGGER.info("Sand access granted for: " + tk.principalName());
     }
     callback.token(tk);
   }
