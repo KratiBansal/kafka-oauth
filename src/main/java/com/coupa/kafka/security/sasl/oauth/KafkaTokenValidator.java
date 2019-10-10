@@ -10,11 +10,9 @@ package com.coupa.kafka.security.sasl.oauth;
 import com.coupa.sand.AllowedResponse;
 import com.coupa.sand.VerificationOptions;
 
-import org.apache.http.auth.AuthenticationException;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.security.auth.AuthenticateCallbackHandler;
 import org.apache.kafka.common.security.oauthbearer.OAuthBearerValidatorCallback;
-import org.apache.kafka.common.security.oauthbearer.internals.unsecured.OAuthBearerValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,19 +71,18 @@ public class KafkaTokenValidator implements AuthenticateCallbackHandler {
 
     AllowedResponse resp;
     try {
-      LOGGER.info("Verifying token: " + token.substring(0, 4));
       resp = sand.getService().checkToken(token, options);
     } catch (Exception e) {
       LOGGER.error("Error verifying Sand token: " + e.getMessage());
       throw new IOException(e.getMessage(), e);
     }
     SandOAuthToken tk = new SandOAuthToken(token, resp);
-    if (!resp.isAllowed()) {
-      LOGGER.info("Sand token access denied");
-      OAuthBearerValidationResult.newFailure("Sand token access denied");
+    if (resp.isAllowed()) {
+      LOGGER.debug("Sand access granted for: " + tk.principalName());
+      callback.token(tk);
     } else {
-      LOGGER.info("Sand access granted for: " + tk.principalName());
+      LOGGER.info("Sand token access denied: " + token);
+      callback.error("access_denied", String.join(",", sand.getArray(SandConfig.SAND_SERVICE_TARGET_SCOPES)), null);
     }
-    callback.token(tk);
   }
 }

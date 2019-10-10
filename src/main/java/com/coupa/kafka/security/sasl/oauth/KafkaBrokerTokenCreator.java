@@ -57,9 +57,7 @@ public class KafkaBrokerTokenCreator implements AuthenticateCallbackHandler {
 
     SandConfig sand = SandConfig.getInstance();
 
-    LOGGER.info("Getting token from SAND");
-    TokenResponse tokenResponse = sand.getService().getOAuthToken(
-        SandConfig.SAND_CLIENT_CACHE_KEY,
+    TokenResponse tokenResponse = sand.getService().tokenRequest(
         sand.getArray(SandConfig.SAND_CLIENT_SCOPES),
         SandConfig.SAND_RETRY_COUNT);
 
@@ -68,7 +66,7 @@ public class KafkaBrokerTokenCreator implements AuthenticateCallbackHandler {
       throw new IllegalArgumentException("Failed to get Sand token (token response is null)");
     }
     SandOAuthToken tk = new SandOAuthToken(sand.getService().getClientId(), tokenResponse);
-    LOGGER.info("Created Sand token, principal {}, expires at (epoch) {}", tk.principalName(), tk.lifetimeMs());
+    LOGGER.debug("Created Sand token principal {}, expires at (epoch) {}", tk.principalName(), tk.lifetimeMs());
     callback.token(tk);
   }
 
