@@ -21,28 +21,38 @@ sand.service.resource=FIXME
 sand.service.action=any
 ```
 
-### Example (Producer)
+### Kafka Console Commands
+
+To use the Kafka commands like `kafka-console-producer.sh` and `kafka-console-consumer.sh`, you first needs a client.properties file, which should contain something like the following:
 
 ```bash
-export KAFKA_SAND_CONFIG_PATH=/etc/kafka/sand.properties
-sudo KAFKA_OPTS="-Dlog4j.configuration=file:/srv/kafka/2.12-2.0.0/kafka_2.12-2.0.0/config/log4j.properties -Djava.security.properties=/etc/kafka/bcfips.java.security -Djavax.net.ssl.trustStore=/var/private/ssl/kafka.truststore.bcfks -Djavax.net.ssl.trustStorePassword=<trustStorePasswordHere>" /srv/kafka/current/kafka_2.12-2.0.0/bin/kafka-console-producer.sh --broker-list <broker_ip>:9092 --producer.config client.properties --topic test-topic1
-```
-
-
-# Client Properties
-client.properties should contains content like below:
-```
 security.protocol=SASL_SSL
-ssl.truststore.location=<path_to_truststore>
-ssl.truststore.password=<truststore_password>
 ssl.endpoint.identification.algorithm=
-sasl.mechanism=OAUTHBEARER
-ssl.truststore.type = BCFKS/JKS
-ssl.keystore.type = BCFKS/JKS
+ssl.keystore.type=BCFKS
 ssl.secure.random.implementation=DEFAULT
+ssl.truststore.type=BCFKS
+ssl.truststore.location=/var/private/ssl/kafka.truststore.bcfks
+ssl.truststore.password=<truststore_password>
+sasl.mechanism=OAUTHBEARER
 sasl.jaas.config=org.apache.kafka.common.security.oauthbearer.OAuthBearerLoginModule required;
 sasl.login.callback.handler.class=com.coupa.kafka.security.sasl.oauth.KafkaBrokerTokenCreator
 ```
+
+To use the `kafka-console-producer.sh`, use:
+
+```bash
+export KAFKA_SAND_CONFIG_PATH=/etc/kafka/sand.properties
+sudo KAFKA_OPTS="-Djava.security.properties=/etc/kafka/bcfips.java.security -Djavax.net.ssl.trustStore=/var/private/ssl/kafka.truststore.bcfks -Djavax.net.ssl.trustStorePassword=<truststore_password>" /srv/kafka/current/kafka_2.12-2.0.0/bin/kafka-console-producer.sh --broker-list localhost:9092 --producer.config client.properties --topic test-topic1
+```
+
+To use the `kafka-console-consumer.sh`, use:
+
+```
+export KAFKA_SAND_CONFIG_PATH=/etc/kafka/sand.properties
+sudo KAFKA_OPTS="-Djava.security.properties=/etc/kafka/bcfips.java.security -Djavax.net.ssl.trustStore=/var/private/ssl/kafka.truststore.bcfks -Djavax.net.ssl.trustStorePassword=<truststore_password>" /srv/kafka/current/kafka_2.12-2.0.0/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --consumer.config client.properties --topic test-topic1 --from-beginning
+```
+
+You can also add `-Dlog4j.configuration=file:/srv/kafka/2.12-2.0.0/kafka_2.12-2.0.0/config/log4j.properties` to the `KAFKA_OPTS` variable.
 
 ### Kafka Server Configuration
 
