@@ -47,7 +47,7 @@ sudo KAFKA_OPTS="-Djava.security.properties=/etc/kafka/bcfips.java.security -Dja
 
 To use the `kafka-console-consumer.sh`, use:
 
-```
+```bash
 export KAFKA_SAND_CONFIG_PATH=/etc/kafka/sand.properties
 sudo KAFKA_OPTS="-Djava.security.properties=/etc/kafka/bcfips.java.security -Djavax.net.ssl.trustStore=/var/private/ssl/kafka.truststore.bcfks -Djavax.net.ssl.trustStorePassword=<truststore_password>" /srv/kafka/current/kafka_2.12-2.0.0/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --consumer.config client.properties --topic test-topic1 --from-beginning
 ```
