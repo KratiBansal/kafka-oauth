@@ -63,11 +63,12 @@ public class KafkaBrokerTokenCreator implements AuthenticateCallbackHandler {
 
     if (tokenResponse == null) {
       LOGGER.error("Failed to get Sand token (token response is null)");
-      throw new IllegalArgumentException("Failed to get Sand token (token response is null)");
+      callback.error("temporarily_unavailable", "Failed to get Sand token (token response is null)", null);
+    } else {
+      SandOAuthToken tk = new SandOAuthToken(sand.getService().getClientId(), tokenResponse);
+      LOGGER.debug("Created Sand token principal {}, expires at (epoch) {}", tk.principalName(), tk.lifetimeMs());
+      callback.token(tk);
     }
-    SandOAuthToken tk = new SandOAuthToken(sand.getService().getClientId(), tokenResponse);
-    LOGGER.debug("Created Sand token principal {}, expires at (epoch) {}", tk.principalName(), tk.lifetimeMs());
-    callback.token(tk);
   }
 
 }

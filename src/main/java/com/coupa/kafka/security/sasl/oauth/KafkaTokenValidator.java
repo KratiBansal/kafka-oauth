@@ -74,7 +74,8 @@ public class KafkaTokenValidator implements AuthenticateCallbackHandler {
       resp = sand.getService().checkToken(token, options);
     } catch (Exception e) {
       LOGGER.error("Error verifying Sand token: " + e.getMessage());
-      throw new IOException(e.getMessage(), e);
+      callback.error("temporarily_unavailable", String.join(",", sand.getArray(SandConfig.SAND_SERVICE_TARGET_SCOPES)), null);
+      return;
     }
     SandOAuthToken tk = new SandOAuthToken(token, resp);
     if (resp.isAllowed()) {
